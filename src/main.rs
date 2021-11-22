@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::env::args;
 use std::fs::File;
-use std::io::{Read, stdin};
+use std::io::{Read, Write, stdout};
 use std::path::Path;
 use std::process::exit;
 
@@ -93,15 +93,16 @@ fn interpret_some(
                 instrc_loc += 1;
             }
             '.' => {
-                // println!("{}", memory[&ptr_loc]);
                 print!("{}", memory[&ptr_loc] as char);
+                stdout().flush().unwrap();
                 instrc_loc += 1;
             }
             ',' => {
-                match stdin().bytes().next().unwrap() {
-                    Ok(input) => {memory.insert(ptr_loc, input);},
+                match std::io::stdin().bytes().next().unwrap() {
+                    Ok(input) => memory.insert(ptr_loc, input),
                     Err(why) => {
                         println!("{}", why);
+                        Some(0)
                     }
                 };
                 instrc_loc += 1;
