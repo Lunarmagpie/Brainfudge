@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::env::args;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, stdin};
 use std::path::Path;
 use std::process::exit;
 
@@ -28,8 +28,8 @@ fn main() {
     match file.read_to_string(&mut s) {
         Err(why) => {
             println!("couldn't read {}: {}", display, why);
-            exit(1);   
-        },
+            exit(1);
+        }
         Ok(_) => interpret(s),
     }
 }
@@ -98,11 +98,10 @@ fn interpret_some(
                 instrc_loc += 1;
             }
             ',' => {
-                match std::io::stdin().bytes().next().unwrap() {
-                    Ok(input) => memory.insert(ptr_loc, input),
+                match stdin().bytes().next().unwrap() {
+                    Ok(input) => {memory.insert(ptr_loc, input);},
                     Err(why) => {
                         println!("{}", why);
-                        Some(0)
                     }
                 };
                 instrc_loc += 1;
@@ -126,7 +125,7 @@ fn interpret_some(
                         }
 
                         let next_eval = unsafe { s.get_unchecked_mut(start_index..instrc_loc) };
-                        ptr_loc = interpret_some(String::from(next_eval), memory, ptr_loc, true);
+                        ptr_loc = interpret_some(next_eval.to_string(), memory, ptr_loc, true);
                         instrc_loc += 1;
                         break;
                     }
